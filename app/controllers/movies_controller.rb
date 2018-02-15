@@ -13,7 +13,12 @@ class MoviesController < ApplicationController
   def index
     
     @all_ratings = Movie.get_ratings
-    @checked_ratings = check_ratings
+    
+    if params[:ratings]
+      @checked_ratings = params[:ratings].keys
+    else
+      @checked_ratings = @all_ratings
+    end
     
     @checked_ratings.each do |rating|
       params[rating] = true
@@ -54,11 +59,4 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
   
-  def check_ratings
-    if params[:ratings]
-      params[:ratings].keys
-    else
-      @all_ratings
-    end
-  end
 end
