@@ -11,17 +11,18 @@ class MoviesController < ApplicationController
   end
 
   def index
-    #get a hash of all the ratings
+    #get a hash of all the ratings, used in the checkbox haml code
     @all_ratings = Movie.get_ratings
     
-     
+    #set the session preferences for sorting
     if params[:sort]
       @sort_sesh = params[:sort]
       session[:sort] = @sort_sesh
     else
       @sort_sesh = session[:sort] || []
     end
-     
+    
+    #set the session preferences for ratings
     if params[:ratings]
       @checked_ratings = params[:ratings]
       session[:ratings] = @checked_ratings
@@ -29,12 +30,13 @@ class MoviesController < ApplicationController
       @checked_ratings = session[:ratings] || {'G'=>1,'PG'=>1,'PG-13'=>1,'R'=>1}
     end
     
+    #handle edge case of all checkboxes being blank, resets to last configuration
     if !params[:ratings] || (!params[:sort] && @sort_sesh != [])
       flash.keep
       redirect_to :action=> 'index', :sort=> @sort_sesh, :ratings=> @checked_ratings
     end
     
-    #sort and filter
+    #sort and filter movie table
     if params[:sort]
       @movies = Movie.where(:rating => @checked_ratings.keys).order(@sort_sesh)
     else
