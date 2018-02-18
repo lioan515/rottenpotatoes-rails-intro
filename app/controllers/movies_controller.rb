@@ -11,24 +11,34 @@ class MoviesController < ApplicationController
   end
 
   def index
-    
     @all_ratings = Movie.get_ratings
-    
-    if params[:ratings]
-      @checked_ratings = params[:ratings].keys
-    else
-      @checked_ratings = @all_ratings
-    end
-    
-    @checked_ratings.each do |rating|
-      params[rating] = true
-    end
-    
+     
     if params[:sort]
-      @movies = Movie.order(params[:sort])
+      @sort_sesh = params[:sort]
+      session[:sort] = @sort_sesh
     else
-      @movies = Movie.where(:rating => @checked_ratings)
+      @sort_sesh = session[:sort] || []
     end
+     
+    if params[:ratings]
+      @checked_ratings = params[:ratings]
+      session[:ratings] = @checked_ratings
+    else
+      @checked_ratings = session[:ratings] || {'G'=>1,'PG'=>1,'PG-13'=>1,'R'=>1}
+    end
+    
+    if !params[:ratings] || (!params[:sort] && @sort_sesh != [])
+      flash.keep
+      redirect_to :action=> 'index', :sort=> @sort_sesh, :ratings=> @checked_ratings
+    end
+    
+    #sort and filter
+    if params[:sort]
+      @movies = Movie.where(:rating => @checked_ratings.keys).order(@sort_sesh)
+    else
+      @movies = Movie.where(:rating => @checked_ratings.keys)
+    end
+    
   end
 
   def new
@@ -59,4 +69,5 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
   
+
 end
