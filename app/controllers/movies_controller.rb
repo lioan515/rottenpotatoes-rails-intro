@@ -13,6 +13,7 @@ class MoviesController < ApplicationController
   def index
     #get a hash of all the ratings
     @all_ratings = Movie.get_ratings
+    
      
     if params[:sort]
       @sort_sesh = params[:sort]
@@ -25,7 +26,7 @@ class MoviesController < ApplicationController
       @checked_ratings = params[:ratings]
       session[:ratings] = @checked_ratings
     else
-      @checked_ratings = session[:ratings] || @all_ratings
+      @checked_ratings = session[:ratings] || {'G'=>1,'PG'=>1,'PG-13'=>1,'R'=>1}
     end
     
     if !params[:ratings] || (!params[:sort] && @sort_sesh != [])
